@@ -20,28 +20,21 @@ issues:
 
 formatters:
   enable:
-    - goimports # checks if the code and import statements are formatted according to the 'goimports' command
-    - golines # checks if code is formatted, and fixes long lines
-
-    ## you may want to enable
-    #- gci # checks if code and import statements are formatted, with additional rules
-    #- gofmt # checks if the code is formatted according to 'gofmt' command
-    #- gofumpt # enforces a stricter format than 'gofmt', while being backwards compatible
-    #- swaggo # formats swaggo comments
+    - gofumpt # enforces a stricter format than 'gofmt', while being backwards compatible
+    - gci
+    # gofmt omitted: subsumed by gofumpt (strict superset)
 
   # All settings can be found here https://github.com/golangci/golangci-lint/blob/HEAD/.golangci.reference.yml
   settings:
-    goimports:
-      # A list of prefixes, which, if set, checks import paths
-      # with the given prefixes are grouped after 3rd-party packages.
-      # Default: []
-      local-prefixes:
-        - github.com/my/project
+    gofumpt:
+      module-path: <>
+      extra-rules: true
 
-    golines:
-      # Target maximum line length.
-      # Default: 100
-      max-len: 120
+    gci:
+      sections:
+        - standard
+        - default
+        - localmodule
 
 linters:
   enable:
@@ -113,7 +106,6 @@ linters:
     - sqlclosecheck # checks that sql.Rows and sql.Stmt are closed
     - staticcheck # is a go vet on steroids, applying a ton of static analysis checks
     - testableexamples # checks if examples are testable (have an expected output)
-    - testifylint # checks usage of github.com/stretchr/testify
     - testpackage # makes you use a separate _test package
     - tparallel # detects inappropriate usage of t.Parallel() method in your Go test codes
     - unconvert # removes unnecessary type conversions
@@ -126,41 +118,41 @@ linters:
     - whitespace # detects leading and trailing whitespace
 
     ## you may want to enable
-    #- arangolint # opinionated best practices for arangodb client
-    #- decorder # checks declaration order and count of types, constants, variables and functions
-    #- exhaustruct # [highly recommend to enable] checks if all structure fields are initialized
+    - arangolint # opinionated best practices for arangodb client
+    - decorder # checks declaration order and count of types, constants, variables and functions
+    - exhaustruct # [highly recommend to enable] checks if all structure fields are initialized
     #- ginkgolinter # [if you use ginkgo/gomega] enforces standards of using ginkgo and gomega
     #- godox # detects usage of FIXME, TODO and other keywords inside comments
-    #- goheader # checks is file header matches to pattern
+    - goheader # checks is file header matches to pattern
     #- inamedparam # [great idea, but too strict, need to ignore a lot of cases by default] reports interfaces with unnamed method parameters
-    #- interfacebloat # checks the number of methods inside an interface
-    #- ireturn # accept interfaces, return concrete types
+    - interfacebloat # checks the number of methods inside an interface
+    - ireturn # accept interfaces, return concrete types
     #- noinlineerr # disallows inline error handling `if err := ...; err != nil {`
-    #- prealloc # [premature optimization, but can be used in some cases] finds slice declarations that could potentially be preallocated
+    - prealloc # [premature optimization, but can be used in some cases] finds slice declarations that could potentially be preallocated
     #- tagalign # checks that struct tags are well aligned
     #- varnamelen # [great idea, but too many false positives] checks that the length of a variable's name matches its scope
-    #- wrapcheck # checks that errors returned from external packages are wrapped
+    - wrapcheck # checks that errors returned from external packages are wrapped
     #- zerologlint # detects the wrong usage of zerolog that a user forgets to dispatch zerolog.Event
 
     ## disabled
-    #- containedctx # detects struct contained context.Context field
-    #- contextcheck # [too many false positives] checks the function whether use a non-inherited context
-    #- dogsled # checks assignments with too many blank identifiers (e.g. x, _, _, _, := f())
+    - containedctx # detects struct contained context.Context field
+    - contextcheck # [too many false positives] checks the function whether use a non-inherited context
+    - dogsled # checks assignments with too many blank identifiers (e.g. x, _, _, _, := f())
     #- dupword # [useless without config] checks for duplicate words in the source code
-    #- err113 # [too strict] checks the errors handling expressions
-    #- errchkjson # [don't see profit + I'm against of omitting errors like in the first example https://github.com/breml/errchkjson] checks types passed to the json encoding functions. Reports unsupported types and optionally reports occasions, where the check for the returned error can be omitted
+    - err113 # [too strict] checks the errors handling expressions
+    - errchkjson # [don't see profit + I'm against of omitting errors like in the first example https://github.com/breml/errchkjson] checks types passed to the json encoding functions. Reports unsupported types and optionally reports occasions, where the check for the returned error can be omitted
     #- forcetypeassert # [replaced by errcheck] finds forced type assertions
     #- gomodguard_v2: [use more powerful depguard] allow and blocklist linter for direct Go module dependencies
     #- gosmopolitan # reports certain i18n/l10n anti-patterns in your Go codebase
-    #- grouper # analyzes expression groups
-    #- importas # enforces consistent import aliases
+    - grouper # analyzes expression groups
+    - importas # enforces consistent import aliases
     #- lll # [replaced by golines] reports long lines
-    #- maintidx # measures the maintainability index of each function
+    - maintidx # measures the maintainability index of each function
     #- misspell # [useless] finds commonly misspelled English words in comments
-    #- nlreturn # [too strict and mostly code is not more readable] checks for a new line before return and branch statements to increase code clarity
-    #- tagliatelle # checks the struct tags
-    #- thelper # detects golang test helpers without t.Helper() call and checks the consistency of test helpers
-    #- wsl_v5 # [too strict and mostly code is not more readable] add or remove empty lines
+    - nlreturn # [too strict and mostly code is not more readable] checks for a new line before return and branch statements to increase code clarity
+    - tagliatelle # checks the struct tags
+    - thelper # detects golang test helpers without t.Helper() call and checks the consistency of test helpers
+    - wsl_v5 # [too strict and mostly code is not more readable] add or remove empty lines
 
   # All settings can be found here https://github.com/golangci/golangci-lint/blob/HEAD/.golangci.reference.yml
   settings:
@@ -232,6 +224,18 @@ linters:
       # Default: false
       check-type-assertions: true
 
+      check-blank: true
+
+      exclude-functions:
+        - (*bytes.Buffer).Write
+        - (*bytes.Buffer).WriteByte
+        - (*bytes.Buffer).WriteRune
+        - (*bytes.Buffer).WriteString
+        - (*strings.Builder).Write
+        - (*strings.Builder).WriteByte
+        - (*strings.Builder).WriteRune
+        - (*strings.Builder).WriteString
+
     exhaustive:
       # Program elements to check for exhaustiveness.
       # Default: [ switch ]
@@ -275,6 +279,12 @@ linters:
       # Default: false
       allow-empty-returns: true
 
+    forbidigo:
+      forbid:
+        - pattern: '^reflect\.DeepEqual$'
+          msg: "use go-cmp (cmp.Diff / cmp.Equal) instead"
+      analyze-types: true
+
     funcorder:
       # Checks if the exported methods of a structure are placed before the non-exported ones.
       # Default: true
@@ -304,6 +314,11 @@ linters:
       # Settings passed to gocritic.
       # The settings key is the name of a supported gocritic checker.
       # The list of supported checkers can be found at https://go-critic.com/overview.
+      enabled-checks:
+        - hugeParam
+        - rangeValCopy
+        - rangeExprCopy
+        - ruleguard
       settings:
         captLocal:
           # Whether to restrict checker to params only.
@@ -313,6 +328,9 @@ linters:
           # Whether to skip (*x).method() calls where x is a pointer receiver.
           # Default: true
           skipRecvDeref: false
+        ruleguard:
+          rules: ".ruleguard.go"
+          failOn: "all"
 
     godoclint:
       # List of rules to enable in addition to the default set.
@@ -374,7 +392,7 @@ linters:
     nolintlint:
       # Exclude following linters from requiring an explanation.
       # Default: []
-      allow-no-explanation: [ funlen, gocognit, golines ]
+      allow-no-explanation: [funlen, gocognit, golines]
       # Enable to require an explanation of nonzero length after each nolint directive.
       # Default: false
       require-explanation: true
@@ -432,11 +450,45 @@ linters:
       # Enable/disable `os.TempDir()` detections.
       # Default: false
       os-temp-dir: true
+      context-background: true
+      context-todo: true
+
+    prealloc:
+      for-loops: true
+      range-loops: true
+      simple: false
+
+    revive:
+      confidence: 0
+      rules:
+        - name: package-comments
+        - name: package-naming
+        - name: context-as-argument
+          arguments:
+            - allowTypesBefore: "*testing.T,*testing.B,*testing.TB"
+        - name: error-return
+        - name: atomic
+        - name: call-to-gc
+        - name: constant-logical-expr
+        - name: datarace
+        - name: defer
+        - name: empty-block
+        - name: identical-branches
+        - name: modifies-parameter
+        - name: range-val-address
+        - name: string-of-int
+        - name: struct-tag
+        - name: time-equal
+        - name: unconditional-recursion
+        - name: useless-break
+        - name: waitgroup-by-value
+        - name: var-naming
+        - name: error-strings
 
   exclusions:
     # Log a warning if an exclusion rule is unused.
     # Default: false
-    warn-unused: true
+    warn-unused: false
     # Predefined exclusion rules.
     # Default: []
     presets:
@@ -444,18 +496,18 @@ linters:
       - common-false-positives
     # Excluding configuration per-path, per-linter, per-text and per-source.
     rules:
-      - source: 'TODO'
-        linters: [ godot ]
-      - text: 'should have a package comment'
-        linters: [ revive ]
+      - source: "TODO"
+        linters: [godot]
+      - text: "should have a package comment"
+        linters: [revive]
       - text: 'exported \S+ \S+ should have comment( \(or a comment on this block\))? or be unexported'
-        linters: [ revive ]
+        linters: [revive]
       - text: 'package comment should be of the form ".+"'
-        source: '// ?(nolint|TODO)'
-        linters: [ revive ]
+        source: "// ?(nolint|TODO)"
+        linters: [revive]
       - text: 'comment on exported \S+ \S+ should be of the form ".+"'
-        source: '// ?(nolint|TODO)'
-        linters: [ revive, staticcheck ]
+        source: "// ?(nolint|TODO)"
+        linters: [revive, staticcheck]
       - path: '_test\.go'
         linters:
           - bodyclose
