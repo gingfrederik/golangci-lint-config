@@ -53,9 +53,21 @@ func errStringStyle(m dsl.Matcher) {
 		Report(`avoid "failed to" in error strings; use concise context, e.g. "create task: %w"`)
 }
 
-func noMultiVlaueInlineErr(m dsl.Matcher) {
+// noMultiValueInlineErr forbids multi-value inline if-init that binds a real
+// value alongside the error, e.g. `if v, err := f(); err != nil`. Assign on its
+// own line, then check err, so the value stays in scope after the block.
+func noMultiValueInlineErr(m dsl.Matcher) {
 	m.Match(`if $val, $err := $_; $_ { $*_ }`,
 		`if $val, $err := $_; $_ { $*_ } else { $*_ }`).
-		Where(m["err"].Type.Is("error") && m["val"], Text != "_").
+		Where(m["err"].Type.Is(`error`) && m["val"].Text != "_").
+		At(m["val"]).
 		Report(`avoid multi-value inline if-init with named value: assign on its own line, then check err`)
+}
+
+// sprintfErr flags errors.New(fmt.Sprintf(...)); fmt.Errorf does the same in one
+// call and supports %w for wrapping.
+func sprintfErr(m dsl.Matcher) {
+	m.Match(`errors.New(fmt.Sprintf($*args))`).
+		Report(`use fmt.Errorf instead of errors.New(fmt.Sprintf(...))`).
+		Suggest(`fmt.Errorf($args)`)
 }
